@@ -18,10 +18,10 @@
                                     </b-form-input>
                                 </b-form-group>
                                 <b-form-group label="Upload Poster:" label-cols-sm="2">
-                                    <b-form-file id="file-default"></b-form-file>
+                                    <b-form-file id="file-default" @change="uploadFile"></b-form-file>
                                 </b-form-group>
                                 <b-form-group id="input-group-2" label="Caption:" label-for="input-2">
-                                    <b-form-input id="input-2" v-model="form.name" required placeholder="Enter Caption">
+                                    <b-form-input id="input-2" v-model="form.caption" required placeholder="Enter Caption">
                                     </b-form-input>
                                 </b-form-group>
 
@@ -50,6 +50,7 @@
 </template>
 
 <script>
+    import axios from 'axios';
     import KTCodePreview from "@/view/content/CodePreview.vue";
     import {
         SET_BREADCRUMB
@@ -143,9 +144,9 @@
     }
   }`,
                 form: {
-                    email: "",
                     name: "",
-                    food: null,
+                    poster: null,
+                    caption: "",
                     checked: []
                 },
                 foods: [{
@@ -194,6 +195,21 @@
 
                 // set clicked tab index to bootstrap tab
                 return parseInt(event.target.getAttribute("data-tab"));
+            },
+            uploadFile() {
+              this.form.poster = this.$refs.file.files[0];
+            },
+            onSubmit() {
+              const formData = new FormData();
+              formData.append('name', this.form.name);
+              formData.append('poster', this.form.poster);
+              formData.append('caption', this.form.caption);
+              const headers = { 'Content-Type': 'multipart/form-data' };
+              axios.post('http://localhost:3000/events', formData, { headers }).then((res) => {
+                res.data.files; // binary representation of the file
+                res.status; // HTTP status
+                console.log(res);
+              });
             }
         }
     };
